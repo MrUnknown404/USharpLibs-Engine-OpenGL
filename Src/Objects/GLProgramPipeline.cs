@@ -1,13 +1,10 @@
 using Engine3.OpenGL.Exceptions;
 using JetBrains.Annotations;
-using NLog;
 using OpenTK.Graphics;
 
 namespace Engine3.OpenGL.Objects {
 	[PublicAPI]
 	public class GLProgramPipeline : OpenGLObject<ProgramPipelineHandle> { // TODO technically this entire system is to allow hot swapping so i should probably implement that
-		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-
 		public override bool HasHandle => Handle.Handle != 0;
 
 		private readonly GLShader[] shaderPrograms;
