@@ -16,6 +16,7 @@
 		<PackageReference Include="JetBrains.Annotations" Version="2024.3.0"/>
 		<PackageReference Include="NLog" Version="5.5.0"/>
 		<PackageReference Include="OpenTK" Version="5.0.0-pre.13"/>
+		<PackageReference Include="StbImageSharp" Version="2.30.15" />
 
 		<ProjectReference Include="..\Engine3\Engine3.csproj"/>
 	</ItemGroup>

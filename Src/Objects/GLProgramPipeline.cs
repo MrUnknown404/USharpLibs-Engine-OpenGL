@@ -3,17 +3,15 @@ using JetBrains.Annotations;
 using NLog;
 using OpenTK.Graphics;
 
-namespace Engine3.OpenGL {
+namespace Engine3.OpenGL.Objects {
 	[PublicAPI]
-	public class GLProgramPipeline { // TODO technically this entire system is to allow hot swapping so i should probably implement that
+	public class GLProgramPipeline : OpenGLObject<ProgramPipelineHandle> { // TODO technically this entire system is to allow hot swapping so i should probably implement that
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
-		public ProgramPipelineHandle Handle { get; private set; }
+		public override bool HasHandle => Handle.Handle != 0;
 
 		private readonly GLShader[] shaderPrograms;
 		private readonly string debugName;
-
-		public bool HasHandle => Handle.Handle != 0;
 
 		public GLProgramPipeline(string debugName, GLShader[] shaderPrograms) {
 			if (shaderPrograms.Length == 0) { throw new ArgumentOutOfRangeException(nameof(shaderPrograms), "GLShader array cannot be empty"); }
@@ -25,10 +23,7 @@ namespace Engine3.OpenGL {
 		public static implicit operator ProgramPipelineHandle(GLProgramPipeline self) => self.Handle;
 
 		public void CreatePipeline() {
-			if (HasHandle) {
-				Logger.Error("Cannot create program pipeline because it already has a handle.");
-				return;
-			}
+			if (!CheckValidForCreation()) { return; }
 
 			Handle = GLH.CreateProgramPipeline();
 			foreach (GLShader shaderProgram in shaderPrograms) {
@@ -38,6 +33,14 @@ namespace Engine3.OpenGL {
 			}
 		}
 
-		public void Bind() => GLH.BindProgramPipeline(Handle);
+		public void Bind() {
+			if (!CheckValidForUse()) { return; }
+			GLH.BindProgramPipeline(Handle);
+		}
+
+		protected override void FreeHandle() {
+			GLH.DeleteProgramPipeline(Handle);
+			Handle = new();
+		}
 	}
 }

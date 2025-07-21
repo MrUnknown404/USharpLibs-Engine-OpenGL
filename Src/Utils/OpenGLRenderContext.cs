@@ -6,6 +6,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using StbImageSharp;
 
 namespace Engine3.OpenGL.Utils {
 	public class OpenGLRenderContext : IRenderContext {
@@ -65,6 +66,8 @@ namespace Engine3.OpenGL.Utils {
 			GL.Enable(EnableCap.CullFace);
 			GL.Enable(EnableCap.Blend);
 			GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+			StbImage.stbi_set_flip_vertically_on_load(1);
 		}
 
 		public void PrepareFrame() => GL.Clear(GLH.ClearBufferMask);

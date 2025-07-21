@@ -15,7 +15,7 @@ namespace Engine3.OpenGL {
 
 	[PublicAPI]
 	public static class GLH {
-		public static ClearBufferMask ClearBufferMask { get; set; } = ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit;
+		public static ClearBufferMask ClearBufferMask { get; set; } = ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit; // should this be in RenderContext?
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		[MustUseReturnValue]
@@ -59,6 +59,15 @@ namespace Engine3.OpenGL {
 				GL.UseProgramStages(pipelineHandle.Handle, shaderType.ToUseProgramStageMask, shaderHandle.Handle);
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static TextureHandle CreateTexture(TextureTarget target) => new(GL.CreateTexture(target));
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void DeleteTexture(TextureHandle handle) => GL.DeleteTexture(handle.Handle);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void BindTextureUnit(uint index, TextureHandle handle) => GL.BindTextureUnit(index, handle.Handle);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void DrawElements(int drawSize, int offset = 0) => GL.DrawElements(PrimitiveType.Triangles, drawSize, DrawElementsType.UnsignedInt, offset);
 
 		[MustUseReturnValue]
@@ -94,5 +103,12 @@ namespace Engine3.OpenGL {
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int GetUniformLocation(ShaderHandle handle, string name) => GL.GetUniformLocation(handle.Handle, name);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void TextureStorage2D(TextureHandle handle, int levels, SizedInternalFormat sizeFormat, ushort width, ushort height) => GL.TextureStorage2D(handle.Handle, levels, sizeFormat, width, height);
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void TextureSubImage2D(TextureHandle handle, int levels, int xOffset, int yOffset, ushort width, ushort height, PixelFormat pixelFormat, PixelType pixelType, ReadOnlySpan<byte> data) =>
+				GL.TextureSubImage2D(handle.Handle, levels, xOffset, yOffset, width, height, pixelFormat, pixelType, data);
 	}
 }
