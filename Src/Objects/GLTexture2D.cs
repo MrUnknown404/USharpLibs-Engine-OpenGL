@@ -10,8 +10,6 @@ namespace Engine3.OpenGL.Objects {
 	public class GLTexture2D : OpenGLObject<TextureHandle> { // TODO mipmaps
 		public override bool HasHandle => Handle.Handle != 0;
 
-		public static implicit operator TextureHandle(GLTexture2D self) => self.Handle;
-
 		public void CreateTexture(string name, Assembly assembly, string fileType = "png", SizedInternalFormat sizeFormat = SizedInternalFormat.Rgba8, PixelFormat pixelFormat = PixelFormat.Rgba,
 				ColorComponents colorComponents = ColorComponents.RedGreenBlueAlpha, TextureMinFilter minFilter = TextureMinFilter.Linear, TextureMagFilter magFilter = TextureMagFilter.Linear,
 				TextureWrapMode wrapModeU = TextureWrapMode.Repeat, TextureWrapMode wrapModeV = TextureWrapMode.Repeat) {

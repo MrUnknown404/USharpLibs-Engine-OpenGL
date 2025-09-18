@@ -1,4 +1,5 @@
 using System.Reflection;
+using Engine3.Api.Graphics;
 using Engine3.IO;
 using Engine3.OpenGL.Utils;
 using JetBrains.Annotations;
@@ -9,7 +10,7 @@ using OpenTK.Mathematics;
 
 namespace Engine3.OpenGL.Objects {
 	[PublicAPI]
-	public class GLShader : OpenGLObject<ShaderHandle> { // TODO implement hot reloading
+	public class GLShader : OpenGLObject<ShaderHandle>, IShaderAccess { // TODO implement hot reloading
 		private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
 		public readonly ShaderType ShaderType;
@@ -27,8 +28,6 @@ namespace Engine3.OpenGL.Objects {
 			this.fileName = fileName;
 			this.assembly = assembly ?? new(static () => GameEngine.InstanceAssembly ?? throw new NullReferenceException());
 		}
-
-		public static implicit operator ShaderHandle(GLShader self) => self.Handle;
 
 		public void CreateShader() {
 			if (!CheckValidForCreation()) { return; }
@@ -97,7 +96,7 @@ namespace Engine3.OpenGL.Objects {
 		public void SetUniform(string name, Matrix4 value) {
 			if (!CheckValidForUse()) { return; }
 			if (CheckContains(name, out int uniformLocation)) { return; }
-			GL.ProgramUniformMatrix4f(Handle.Handle, uniformLocation, 1, true, in value); // TODO look into this transpose variable. i think i can fix opentk's row-column thing with this?
+			GL.ProgramUniformMatrix4f(Handle.Handle, uniformLocation, 1, true, in value); // TODO look into this transpose variable. i think i can change opentk's row-column order thing with this? dunno
 		}
 
 		protected override void FreeHandle() {

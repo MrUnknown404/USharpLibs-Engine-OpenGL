@@ -1,33 +1,50 @@
+using Engine3.Api.Graphics;
 using Engine3.OpenGL.Exceptions;
 using JetBrains.Annotations;
 using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace Engine3.OpenGL.Objects {
 	[PublicAPI]
-	public class GLProgramPipeline : OpenGLObject<ProgramPipelineHandle> { // TODO technically this entire system is to allow hot swapping so i should probably implement that
+	public class GLProgramPipeline : OpenGLObject<ProgramPipelineHandle>, IProgramPipeline {
 		public override bool HasHandle => Handle.Handle != 0;
 
-		private readonly GLShader[] shaderPrograms;
 		private readonly string debugName;
 
-		public GLProgramPipeline(string debugName, GLShader[] shaderPrograms) {
-			if (shaderPrograms.Length == 0) { throw new ArgumentOutOfRangeException(nameof(shaderPrograms), "GLShader array cannot be empty"); }
+		public IShaderAccess? VertexShader { get; }
+		public IShaderAccess? FragmentShader { get; }
+		public IShaderAccess? GeometryShader { get; }
+		public IShaderAccess? TessEvaluationShader { get; }
+		public IShaderAccess? TessControlShader { get; }
+		// TODO compute?
+		// TODO shader hot-swapping
 
+		public GLProgramPipeline(string debugName, GLShader? vert, GLShader? frag, GLShader? geom = null, GLShader? tessEval = null, GLShader? tessCtrl = null) {
 			this.debugName = debugName;
-			this.shaderPrograms = shaderPrograms;
+			VertexShader = vert;
+			FragmentShader = frag;
+			GeometryShader = geom;
+			TessEvaluationShader = tessEval;
+			TessControlShader = tessCtrl;
 		}
 
-		public static implicit operator ProgramPipelineHandle(GLProgramPipeline self) => self.Handle;
-
 		public void CreatePipeline() {
+			void TryAddStage(IShaderAccess? shaderAccess, ShaderType shaderType) {
+				if (shaderAccess == null) { return; }
+				if (!shaderAccess.HasHandle) { throw new OpenGLException($"Program Pipeline: {debugName}:{Handle} has an invalid shader program. No handle"); }
+
+				GLH.UseProgramStages(Handle, shaderType, shaderAccess.Handle);
+			}
+
 			if (!CheckValidForCreation()) { return; }
 
 			Handle = GLH.CreateProgramPipeline();
-			foreach (GLShader shaderProgram in shaderPrograms) {
-				if (!shaderProgram.HasHandle) { throw new OpenGLException($"Program Pipeline: {debugName}:{Handle} has an invalid shader program. No handle"); }
 
-				GLH.UseProgramStages(Handle, shaderProgram.ShaderType, shaderProgram.Handle);
-			}
+			TryAddStage(VertexShader, ShaderType.VertexShader);
+			TryAddStage(FragmentShader, ShaderType.FragmentShader);
+			TryAddStage(GeometryShader, ShaderType.GeometryShader);
+			TryAddStage(TessEvaluationShader, ShaderType.TessEvaluationShader);
+			TryAddStage(TessControlShader, ShaderType.TessControlShader);
 		}
 
 		public void Bind() {

@@ -20,8 +20,6 @@ namespace Engine3.OpenGL.Objects {
 		public GLBuffer(BufferStorageMask storageMask) => this.storageMask = storageMask;
 		public GLBuffer(VertexBufferObjectUsage usage) => this.usage = usage;
 
-		public static implicit operator BufferHandle(GLBuffer self) => self.Handle;
-
 		public void CreateBuffer() {
 			if (!CheckValidForCreation()) { return; }
 			Handle = GLH.CreateBuffer();
@@ -43,6 +41,23 @@ namespace Engine3.OpenGL.Objects {
 				GLH.NamedBufferStorage(Handle, data, storageMask); //
 			} else if (usage != 0) {
 				GLH.NamedBufferData(Handle, data, usage); //
+			} else { throw new OpenGLException("Invalid GLBuffer type?"); }
+		}
+
+		public void SetBuffer(int size) {
+			if (!CheckValidForUse()) { return; }
+
+			if (SizeInBytes != 0 && usage != 0) {
+				Logger.Error("Cannot resize a GLBuffer that does not allow it");
+				return;
+			}
+
+			SizeInBytes = size;
+
+			if (storageMask != 0) {
+				GLH.NamedBufferStorage(Handle, size, storageMask); //
+			} else if (usage != 0) {
+				GLH.NamedBufferData(Handle, size, usage); //
 			} else { throw new OpenGLException("Invalid GLBuffer type?"); }
 		}
 
